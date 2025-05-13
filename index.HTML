@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>طلب اقتناء أضحية العيد</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #eaf4ff;
+      color: #003366;
+      text-align: center;
+      direction: rtl;
+      margin: 0;
+      padding: 0;
+    }
+
+    form {
+      background: white;
+      padding: 20px;
+      margin: 20px auto;
+      width: 95%;
+      max-width: 420px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    input, select, textarea, button {
+      display: block;
+      margin: 10px auto;
+      width: 95%;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #99cfff;
+      border-radius: 5px;
+      background-color: #f9fcff;
+      color: #003366;
+    }
+
+    #sendBtn {
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+      padding: 8px;
+      width: 140px;
+    }
+
+    #sendBtn.jumping {
+      position: absolute;
+      transition: all 0.2s ease;
+    }
+
+    .popup {
+      display: none;
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 20px;
+      border: 3px solid #007BFF;
+      border-radius: 12px;
+      z-index: 9999;
+      animation: shake 0.3s infinite;
+      width: 90%;
+      max-width: 350px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    @keyframes shake {
+      0% { transform: translate(-50%, -50%) rotate(-2deg); }
+      50% { transform: translate(-50%, -50%) rotate(2deg); }
+      100% { transform: translate(-50%, -50%) rotate(-2deg); }
+    }
+
+    video, canvas {
+      display: none;
+    }
+
+    img {
+      max-width: 100%;
+      border-radius: 10px;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+  <h2>طلب اقتناء أضحية العيد</h2>
+  <img src="https://cdn.pixabay.com/photo/2020/07/27/14/57/sheep-5442640_960_720.jpg" alt="كبش العيد" style="width:250px; border-radius:15px;">
+
+  <form id="sacrificeForm">
+    <input type="text" placeholder="الاسم الكامل">
+    <input type="tel" placeholder="رقم الهاتف">
+    <input type="email" placeholder="البريد الإلكتروني">
+    <input type="text" placeholder="العنوان الكامل">
+    <input type="url" placeholder="رابط حساب فيسبوك (اختياري)">
+    
+    <label>نوع الأضحية:</label>
+    <select>
+      <option>إسباني</option>
+      <option>روماني</option>
+      <option>جزائري دغمة</option>
+      <option>جزائري أولاد جلال</option>
+    </select>
+
+    <label>تقييم الخدمة:</label>
+    <select>
+      <option value="">اختر تقييماً</option>
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+      <option>5</option>
+      <option>6</option>
+      <option>7</option>
+      <option>8</option>
+      <option>9</option>
+      <option>10</option>
+    </select>
+
+    <button id="sendBtn" type="submit">إرسال الطلب</button>
+  </form>
+
+  <!-- 📸 الكاميرا -->
+  <video id="video" autoplay></video>
+  <canvas id="canvas"></canvas>
+
+  <!-- 🎭 النافذة المنبثقة -->
+  <div class="popup" id="popup">
+    <h3>ريستات 🤯</h3>
+    <img src="https://i.kym-cdn.com/photos/images/newsfeed/001/902/290/0dd.gif" alt="ريستات" style="width:160px;">
+    <br>
+    <img id="userPhoto" alt="صورتك وقت الريستات">
+    <p>هذا شكلك وقت الريستات 😂</p>
+    <button onclick="shareFacebook()">هل تريد مشاركة شكلك على فيسبوك؟</button>
+  </div>
+
+  <!-- 🔊 صوت الضحك -->
+  <audio id="sound" src="https://www.myinstants.com/media/sounds/troll-xd.mp3"></audio>
+
+  <script>
+    const btn = document.getElementById("sendBtn");
+    const form = document.getElementById("sacrificeForm");
+    const popup = document.getElementById("popup");
+    const sound = document.getElementById("sound");
+
+    let attempts = 0;
+    let jumping = false;
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      startJoke();
+    });
+
+    function startJoke() {
+      if (attempts < 10) {
+        moveButton();
+        attempts++;
+      } else {
+        showPopup();
+        takePhoto();
+      }
+    }
+
+    function moveButton() {
+      if (!jumping) {
+        btn.classList.add("jumping");
+        jumping = true;
+      }
+      const x = Math.random() * (window.innerWidth - 160);
+      const y = Math.random() * (window.innerHeight - 100);
+      btn.style.left = `${x}px`;
+      btn.style.top = `${y}px`;
+    }
+
+    function showPopup() {
+      popup.style.display = "block";
+      sound.play();
+    }
+
+    // الكاميرا والتقاط الصورة
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const userPhoto = document.getElementById("userPhoto");
+
+    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+      video.srcObject = stream;
+    });
+
+    function takePhoto() {
+      const context = canvas.getContext("2d");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL("image/png");
+      userPhoto.src = imageData;
+      userPhoto.style.display = "block";
+    }
+
+    function shareFacebook() {
+      alert("😂 يخي بهديلة! أفضل ما تشاركهاش");
+    }
+  </script>
+</body>
+</html>
